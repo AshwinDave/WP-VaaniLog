@@ -1,0 +1,173 @@
+<?php
+
+namespace WPVaaniLog\Database;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * $wpdb-backed implementation of LoggerRepositoryInterface.
+ *
+ * insert_event() is an instance method (not static) specifically so
+ * Logger can depend on the LoggerRepositoryInterface contract instead
+ * of this concrete class - see Logger::__construct(). Every other
+ * method here is a read/utility helper called from several unrelated
+ * classes (Dashboard, Timeline, Search, Activator, Uninstaller) and is
+ * kept static since those call sites have no need for a Database
+ * instance and static keeps them simple.
+ */
+final class Database implements LoggerRepositoryInterface {
+
+	/**
+	 * Insert a change-event row into the log table.
+	 *
+	 * This is the single write-path used by the Logger. Any hook that wants
+	 * to record a change must go through this method.
+	 *
+	 * @param array $data {
+	 *     @type string $event_type  Required. e.g. 'post_updated'.
+	 *     @type string $object_type Required. e.g. 'post', 'user', 'plugin'.
+	 *     @type int    $object_id   Optional. ID of the affected object.
+	 *     @type string $object_name Optional. Human-readable name (title, login, etc).
+	 *     @type int    $user_id     Optional. Acting user. Defaults to current user.
+	 *     @type mixed  $old_value   Optional. Previous value.
+	 *     @type mixed  $new_value   Optional. New value.
+	 *     @type string $severity    Optional. 'normal' or 'critical'. Default 'normal'.
+	 * }
+	 * @return int|false Insert ID on success, false on failure.
+	 */
+	public function insert_event( array $data ) {
+
+		global $wpdb;
+
+		if ( empty( $data['event_type'] ) || empty( $data['object_type'] ) ) {
+			return false;
+		}
+
+		$defaults = array(
+			'object_id'   => null,
+			'object_name' => '',
+			'user_id'     => get_current_user_id(),
+			'old_value'   => '',
+			'new_value'   => '',
+			'severity'    => 'normal',
+		);
+
+		$data = wp_parse_args( $data, $defaults );
+
+		// Values can be arrays/objects (e.g. option values) - store as scalar text.
+		// Normalize structured values without allowing arbitrary objects to be
+		// serialized. Sensitive data should already be redacted by the Logger;
+		// this final boundary also prevents accidental object serialization.
+		$old_value = is_scalar( $data['old_value'] ) || null === $data['old_value']
+			? (string) $data['old_value']
+			: wp_json_encode( vaanilog_redact_sensitive_value( $data['old_value'] ) );
+		$new_value = is_scalar( $data['new_value'] ) || null === $data['new_value']
+			? (string) $data['new_value']
+			: wp_json_encode( vaanilog_redact_sensitive_value( $data['new_value'] ) );
+
+		// Guard against runaway row sizes from large values.
+		$max_len   = 4000;
+		$old_value = function_exists( 'mb_substr' ) ? mb_substr( (string) $old_value, 0, $max_len ) : substr( (string) $old_value, 0, $max_len );
+		$new_value = function_exists( 'mb_substr' ) ? mb_substr( (string) $new_value, 0, $max_len ) : substr( (string) $new_value, 0, $max_len );
+
+		$inserted = $wpdb->insert(
+			self::table(),
+			array(
+				'event_type'  => sanitize_key( $data['event_type'] ),
+				'object_type' => sanitize_key( $data['object_type'] ),
+				'object_id'   => $data['object_id'] ? absint( $data['object_id'] ) : null,
+				'object_name' => sanitize_text_field( (string) $data['object_name'] ),
+				'user_id'     => absint( $data['user_id'] ),
+				'old_value'   => $old_value,
+				'new_value'   => $new_value,
+				'severity'    => in_array( $data['severity'], array( 'normal', 'critical' ), true ) ? $data['severity'] : 'normal',
+				'created_at'  => current_time( 'mysql' ),
+			),
+			array( '%s', '%s', '%d', '%s', '%d', '%s', '%s', '%s', '%s' )
+		);
+
+		return $inserted ? $wpdb->insert_id : false;
+	}
+
+	/**
+	 * Attach computed ->username and ->critical properties to a raw log
+	 * row, since the table itself only stores user_id and severity.
+	 * The views (dashboard.php, timeline.php, event-details.php) read
+	 * ->username / ->critical, so every read-path must call this.
+	 *
+	 * @param object $event Raw row from $wpdb.
+	 * @return object
+	 */
+	public static function decorate_event( object $event ): object {
+
+		$event->username = vaanilog_get_username( $event->user_id ?? 0 );
+		$event->critical = isset( $event->severity ) && 'critical' === $event->severity;
+
+		return $event;
+	}
+
+	/**
+	 * Decorate an array of rows. @see self::decorate_event().
+	 *
+	 * @param object[] $events Raw rows from $wpdb.
+	 * @return object[]
+	 */
+	public static function decorate_events( array $events ): array {
+
+		foreach ( $events as $event ) {
+			self::decorate_event( $event );
+		}
+
+		return $events;
+	}
+
+	/**
+	 * Install database.
+	 */
+	public static function install(): void {
+
+		global $wpdb;
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		$table_name = self::table();
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE {$table_name} (
+			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			event_type VARCHAR(100) NOT NULL,
+			object_type VARCHAR(100) NOT NULL,
+			object_id BIGINT UNSIGNED NULL,
+			object_name VARCHAR(255) NULL,
+			user_id BIGINT UNSIGNED NULL,
+			old_value LONGTEXT NULL,
+			new_value LONGTEXT NULL,
+			severity VARCHAR(20) DEFAULT 'normal',
+			created_at DATETIME NOT NULL,
+			PRIMARY KEY  (id),
+			KEY event_type (event_type),
+			KEY object_type (object_type),
+			KEY object_id (object_id),
+			KEY user_id (user_id),
+			KEY created_at (created_at),
+			KEY severity (severity)
+		) {$charset_collate};";
+
+		dbDelta( $sql );
+
+	}
+
+	/**
+ * Get log table name.
+ *
+ * @return string
+ */
+public static function table(): string {
+
+	global $wpdb;
+
+	return $wpdb->prefix . 'vaanilog_logs';
+}
+
+}

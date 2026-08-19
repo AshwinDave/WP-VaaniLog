@@ -1,0 +1,88 @@
+<?php
+/**
+ * Timeline screen with search and filters.
+ *
+ * @package WP_Change_Monitor
+ */
+
+namespace WPVaaniLog\Timeline;
+
+use WPVaaniLog\Database\Database;
+use WPVaaniLog\Database\Search;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Class VAANILOG_Timeline
+ */
+class Timeline {
+
+	/**
+	 * Number of events shown per page.
+	 *
+	 * @var int
+	 */
+	private int $per_page = 20;
+
+	/**
+	 * Render the timeline page.
+	 *
+	 * @param bool $critical_only Whether to force the "Critical Only" filter (used by the Critical Changes submenu).
+	 */
+	public function render( bool $critical_only = false ): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		// If a single event ID is requested, show details screen instead.
+		if ( ! empty( $_GET['event_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$this->render_details( absint( $_GET['event_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		$search       = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$date_filter  = isset( $_GET['date_filter'] ) ? sanitize_key( $_GET['date_filter'] ) : '';   // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$type_filter  = isset( $_GET['type_filter'] ) ? sanitize_key( $_GET['type_filter'] ) : '';   // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$only_critical = $critical_only || ( isset( $_GET['type_filter'] ) && 'critical' === $_GET['type_filter'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$paged        = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$results = Search::query(
+			array(
+				'search'        => $search,
+				'date_filter'   => $date_filter,
+				'type_filter'   => $only_critical ? '' : $type_filter,
+				'only_critical' => $only_critical,
+				'per_page'      => $this->per_page,
+				'paged'         => $paged,
+			)
+		);
+
+		$events       = $results['events'];
+		$total_events = $results['total'];
+		$total_pages  = (int) ceil( $total_events / $this->per_page );
+		$page_title   = $critical_only ? __( 'Critical Changes', 'wp-vaanilog' ) : __( 'Timeline', 'wp-vaanilog' );
+
+		include VAANILOG_PLUGIN_DIR . 'includes/views/timeline.php';
+	}
+
+	/**
+	 * Render the single event details screen.
+	 *
+	 * @param int $event_id Event row ID.
+	 */
+	private function render_details( int $event_id ): void {
+		global $wpdb;
+		$table = Database::table();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$event = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $event_id ) );
+
+		if ( $event ) {
+			$event = Database::decorate_event( $event );
+		}
+
+		include VAANILOG_PLUGIN_DIR . 'includes/views/event-details.php';
+	}
+}
