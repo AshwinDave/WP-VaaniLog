@@ -1,0 +1,26 @@
+name: WordPress Plugin Check
+
+# Runs the official WordPress.org Plugin Check tool - the same
+# automated checks the plugin review team runs against submissions
+# (readme.txt validity, escaping/sanitization, deprecated functions,
+# trademark/naming issues, etc). Catch these here, not during review.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  plugin-check:
+    name: Run Plugin Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run WordPress Plugin Check
+        uses: WordPress/plugin-check-action@v1
+        with:
+          # This repo IS the plugin root (wp-vaanilog.php lives at the
+          # top level) - point Plugin Check there directly.
+          build-dir: '.'

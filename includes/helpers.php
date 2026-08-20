@@ -2,11 +2,32 @@
 /**
  * Helper functions for WP VaaniLog.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
+}
+
+/**
+ * Single source of truth for default plugin settings. Both the
+ * Settings screen and the Logger read this so the two can never drift
+ * out of sync with each other (previously each hard-coded its own
+ * copy of this array).
+ *
+ * @return array
+ */
+function vaanilog_default_settings(): array {
+	return array(
+		'track_users'        => 1,
+		'track_plugins'      => 1,
+		'track_themes'       => 1,
+		'track_posts'        => 1,
+		'track_settings'     => 1,
+		// Days of history to keep before the daily cleanup cron prunes
+		// old rows. 0 = keep forever.
+		'log_retention_days' => 90,
+	);
 }
 
 /**

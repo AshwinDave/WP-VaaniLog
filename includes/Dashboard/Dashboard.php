@@ -2,7 +2,7 @@
 /**
  * Dashboard screen with summary cards.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  */
 
 namespace WPVaaniLog\Dashboard;

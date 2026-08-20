@@ -11,7 +11,7 @@
  * so this class stays decoupled from the storage implementation and is
  * unit-testable with a fake repository.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  */
 
 namespace WPVaaniLog\Core;
@@ -115,16 +115,7 @@ final class Logger {
 	 */
 	private function tracking_enabled( string $key ): bool {
 
-		$settings = get_option(
-			'vaanilog_settings',
-			array(
-				'track_users'    => 1,
-				'track_plugins'  => 1,
-				'track_themes'   => 1,
-				'track_posts'    => 1,
-				'track_settings' => 1,
-			)
-		);
+		$settings = get_option( 'vaanilog_settings', vaanilog_default_settings() );
 
 		return ! empty( $settings[ $key ] );
 	}

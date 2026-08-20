@@ -2,7 +2,7 @@
 /**
  * About view.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

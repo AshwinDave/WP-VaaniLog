@@ -5,7 +5,7 @@
  * This class was referenced by uninstall.php but never existed, which
  * meant deleting the plugin threw a fatal "Class not found" error.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  */
 
 namespace WPVaaniLog\Core;
@@ -27,12 +27,21 @@ final class Uninstaller {
 
 		$table = Database::table();
 
+		// Defensive: normally Deactivator already clears this on
+		// deactivation, but plugins can be force-deleted (e.g. via
+		// filesystem/WP-CLI) without WordPress ever firing the
+		// deactivation hook, which would otherwise leave an orphaned
+		// cron event trying to call code that no longer exists.
+		Cleanup::unschedule();
+
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange
 		$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
 
 		delete_option( 'vaanilog_settings' );
+		delete_option( 'vaanilog_db_version' );
 
-		// In case a multisite network activation ever stores this too.
+		// In case a multisite network activation ever stores these too.
 		delete_site_option( 'vaanilog_settings' );
+		delete_site_option( 'vaanilog_db_version' );
 	}
 }
