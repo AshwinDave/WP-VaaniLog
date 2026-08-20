@@ -1,7 +1,12 @@
 <?php
-// If uninstall not called from WordPress, then exit.
+/**
+ * Uninstall WP VaaniLog.
+ *
+ * @package WPVaaniLog
+ */
+
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-    exit;
+	exit;
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/Core/Uninstaller.php';

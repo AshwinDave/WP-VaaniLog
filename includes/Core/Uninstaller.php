@@ -14,6 +14,9 @@ use WPVaaniLog\Database\Database;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Handles plugin cleanup during uninstall.
+ */
 final class Uninstaller {
 
 	/**
@@ -34,8 +37,13 @@ final class Uninstaller {
 		// cron event trying to call code that no longer exists.
 		Cleanup::unschedule();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange
-		$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.SchemaChange
+		$wpdb->query(
+			$wpdb->prepare(
+				'DROP TABLE IF EXISTS %i',
+				$table
+			)
+		);
 
 		delete_option( 'vaanilog_settings' );
 		delete_option( 'vaanilog_db_version' );

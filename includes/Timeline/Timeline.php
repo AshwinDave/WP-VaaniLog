@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class VAANILOG_Timeline
+ * Timeline screen handler.
  */
 class Timeline {
 
@@ -29,9 +29,11 @@ class Timeline {
 	/**
 	 * Render the timeline page.
 	 *
-	 * @param bool $critical_only Whether to force the "Critical Only" filter (used by the Critical Changes submenu).
+	 * @param bool $critical_only Whether to force the "Critical Only" filter.
+	 * @return void
 	 */
 	public function render( bool $critical_only = false ): void {
+
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -42,11 +44,11 @@ class Timeline {
 			return;
 		}
 
-		$search       = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$date_filter  = isset( $_GET['date_filter'] ) ? sanitize_key( $_GET['date_filter'] ) : '';   // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$type_filter  = isset( $_GET['type_filter'] ) ? sanitize_key( $_GET['type_filter'] ) : '';   // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$search        = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$date_filter   = isset( $_GET['date_filter'] ) ? sanitize_key( $_GET['date_filter'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$type_filter   = isset( $_GET['type_filter'] ) ? sanitize_key( $_GET['type_filter'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$only_critical = $critical_only || ( isset( $_GET['type_filter'] ) && 'critical' === $_GET['type_filter'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$paged        = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$paged         = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$results = Search::query(
 			array(
@@ -71,13 +73,21 @@ class Timeline {
 	 * Render the single event details screen.
 	 *
 	 * @param int $event_id Event row ID.
+	 * @return void
 	 */
 	private function render_details( int $event_id ): void {
+
 		global $wpdb;
+
 		$table = Database::table();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$event = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $event_id ) );
+		$event = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT * FROM %i WHERE id = %d',
+				$table,
+				$event_id
+			)
+		);
 
 		if ( $event ) {
 			$event = Database::decorate_event( $event );

@@ -7,7 +7,6 @@
 
 namespace WPVaaniLog\Settings;
 
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

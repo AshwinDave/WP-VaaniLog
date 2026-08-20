@@ -17,6 +17,9 @@ use WPVaaniLog\Database\Database;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Manages log retention cleanup.
+ */
 final class Cleanup {
 
 	/**

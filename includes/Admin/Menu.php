@@ -1,4 +1,9 @@
 <?php
+/**
+ * Registers WP VaaniLog admin menus.
+ *
+ * @package WPVaaniLog
+ */
 
 namespace WPVaaniLog\Admin;
 
@@ -8,16 +13,25 @@ use WPVaaniLog\Settings\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Registers plugin admin menus.
+ */
 final class Menu {
 
+	/**
+	 * Register menu hooks.
+	 *
+	 * @return void
+	 */
 	public function register_menus(): void {
-		add_action( 'admin_menu', [ $this, 'register' ] );
+		add_action( 'admin_menu', array( $this, 'register' ) );
 	}
-
 
 	/**
 	 * Register plugin admin menus.
-	*/
+	 *
+	 * @return void
+	 */
 	public function register(): void {
 
 		add_menu_page(
@@ -25,13 +39,10 @@ final class Menu {
 			__( 'Change Monitor', 'wp-vaanilog' ),
 			'manage_options',
 			'vaanilog-dashboard',
-			[ new Dashboard(), 'render' ],
+			array( new Dashboard(), 'render' ),
 			'dashicons-backup',
 			58
 		);
-
-		// ❌ DO NOT add Dashboard submenu.
-		// WordPress automatically creates it.
 
 		add_submenu_page(
 			'vaanilog-dashboard',
@@ -39,7 +50,7 @@ final class Menu {
 			__( 'Timeline', 'wp-vaanilog' ),
 			'manage_options',
 			'vaanilog-timeline',
-			[ new Timeline(), 'render' ]
+			array( new Timeline(), 'render' )
 		);
 
 		add_submenu_page(
@@ -48,7 +59,7 @@ final class Menu {
 			__( 'Settings', 'wp-vaanilog' ),
 			'manage_options',
 			'vaanilog-settings',
-			[ new Settings(), 'render' ]
+			array( new Settings(), 'render' )
 		);
 
 		add_submenu_page(
@@ -57,13 +68,15 @@ final class Menu {
 			__( 'About', 'wp-vaanilog' ),
 			'manage_options',
 			'vaanilog-about',
-			[ $this, 'about_page' ]
+			array( $this, 'about_page' )
 		);
 	}
 
 	/**
-	 * Register hooks.
-	*/
+	 * Render the About page.
+	 *
+	 * @return void
+	 */
 	public function about_page(): void {
 		require VAANILOG_PLUGIN_DIR . 'includes/views/about.php';
 	}

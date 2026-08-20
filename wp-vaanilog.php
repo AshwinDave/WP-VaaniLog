@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: VaaniLog
+ * Plugin Name: WP VaaniLog
  * Plugin URI: https://github.com/AshwinDave/wp-vaanilog
  * Description: Track important changes on your WordPress site with a clear, human-readable activity timeline.
  * Version: 1.0.1
@@ -9,6 +9,8 @@
  * Author: Ashwin Dave
  * License: GPL v2 or later
  * Text Domain: wp-vaanilog
+ *
+ * @package WPVaaniLog
  */
 
 defined( 'ABSPATH' ) || exit;

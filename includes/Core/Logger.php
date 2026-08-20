@@ -20,6 +20,9 @@ use WPVaaniLog\Database\LoggerRepositoryInterface;
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Records important WordPress changes in the VaaniLog audit log.
+ */
 final class Logger {
 
 	/**
@@ -34,6 +37,8 @@ final class Logger {
 	private LoggerRepositoryInterface $db;
 
 	/**
+	 * Create the logger with its storage repository.
+	 *
 	 * @param LoggerRepositoryInterface $db Repository used to persist events.
 	 */
 	public function __construct( LoggerRepositoryInterface $db ) {
@@ -112,6 +117,7 @@ final class Logger {
 	 * Defaults to "on" if settings have never been saved.
 	 *
 	 * @param string $key e.g. 'track_posts'.
+	 * @return bool
 	 */
 	private function tracking_enabled( string $key ): bool {
 
@@ -123,6 +129,8 @@ final class Logger {
 	/**
 	 * Thin wrapper around the injected repository's insert_event() for
 	 * readability at each call site below.
+	 *
+	 * @param array $data Event data to persist.
 	 */
 	private function log( array $data ): void {
 		$this->db->insert_event( $data );
@@ -135,6 +143,8 @@ final class Logger {
 	*/
 
 	/**
+	 * Handle the on transition post status event.
+	 *
 	 * @param string   $new_status New post status.
 	 * @param string   $old_status Previous post status.
 	 * @param \WP_Post $post       Post object.
@@ -192,8 +202,8 @@ final class Logger {
 	/**
 	 * Log meaningful edits to an existing post/page with a compact before/after snapshot.
 	 *
-	 * @param int      $post_id   Updated post ID.
-	 * @param \WP_Post $post_after Post after the update.
+	 * @param int      $post_id     Updated post ID.
+	 * @param \WP_Post $post_after  Post after the update.
 	 * @param \WP_Post $post_before Post before the update.
 	 */
 	public function on_post_updated( $post_id, $post_after, $post_before ): void {
@@ -279,6 +289,8 @@ final class Logger {
 	*/
 
 	/**
+	 * Handle the on user register event.
+	 *
 	 * @param int $user_id Newly registered user ID.
 	 */
 	public function on_user_register( $user_id ): void {
@@ -302,6 +314,8 @@ final class Logger {
 	}
 
 	/**
+	 * Handle the on delete user event.
+	 *
 	 * @param int $user_id Deleted user ID.
 	 */
 	public function on_delete_user( $user_id ): void {
@@ -324,6 +338,8 @@ final class Logger {
 	}
 
 	/**
+	 * Handle the on set user role event.
+	 *
 	 * @param int      $user_id   User whose role changed.
 	 * @param string   $role      New role.
 	 * @param string[] $old_roles Previous roles.
@@ -350,6 +366,8 @@ final class Logger {
 	}
 
 	/**
+	 * Handle the on wp login event.
+	 *
 	 * @param string   $user_login Username.
 	 * @param \WP_User $user       User object.
 	 */
@@ -371,6 +389,8 @@ final class Logger {
 	}
 
 	/**
+	 * Handle the on wp logout event.
+	 *
 	 * @param int $user_id User logging out.
 	 */
 	public function on_wp_logout( $user_id ): void {
@@ -393,6 +413,8 @@ final class Logger {
 	}
 
 	/**
+	 * Handle the on password reset event.
+	 *
 	 * @param \WP_User $user User whose password was reset.
 	 */
 	public function on_password_reset( $user ): void {
@@ -419,6 +441,8 @@ final class Logger {
 	*/
 
 	/**
+	 * Handle the on activated plugin event.
+	 *
 	 * @param string $plugin Plugin basename.
 	 */
 	public function on_activated_plugin( $plugin ): void {
@@ -437,6 +461,8 @@ final class Logger {
 	}
 
 	/**
+	 * Handle the on deactivated plugin event.
+	 *
 	 * @param string $plugin Plugin basename.
 	 */
 	public function on_deactivated_plugin( $plugin ): void {
@@ -455,6 +481,8 @@ final class Logger {
 	}
 
 	/**
+	 * Handle the on deleted plugin event.
+	 *
 	 * @param string $plugin_file Plugin basename.
 	 * @param bool   $deleted     Whether deletion succeeded.
 	 */
@@ -475,6 +503,8 @@ final class Logger {
 	}
 
 	/**
+	 * Handle the on switch theme event.
+	 *
 	 * @param string    $new_name  New theme name.
 	 * @param \WP_Theme $new_theme New theme object.
 	 */
@@ -566,6 +596,8 @@ final class Logger {
 	*/
 
 	/**
+	 * Handle the on updated option event.
+	 *
 	 * @param string $option    Option name.
 	 * @param mixed  $old_value Previous value.
 	 * @param mixed  $new_value New value.
