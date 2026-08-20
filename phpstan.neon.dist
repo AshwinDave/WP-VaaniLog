@@ -1,0 +1,22 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - includes
+        - wp-vaanilog.php
+        - uninstall.php
+    excludePaths:
+        - vendor/*
+        - tests/*
+    inferPrivatePropertyTypeFromConstructor: true
+
+    # Raise this over time as the codebase gets stricter typing.
+    # Start at 5 so PHPStan is useful immediately without drowning
+    # the first run in hundreds of pre-existing findings.
+
+    ignoreErrors:
+        # get_plugins() is only available after requiring wp-admin/includes/plugin.php,
+        # which vaanilog_get_plugin_name() does at runtime - PHPStan can't see that.
+        - '#Function get_plugins not found#'

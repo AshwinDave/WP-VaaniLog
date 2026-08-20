@@ -7,7 +7,7 @@
  * $wpdb today, potentially something else tomorrow) and can be unit
  * tested with a fake implementation instead of hitting a real database.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  */
 
 namespace WPVaaniLog\Database;

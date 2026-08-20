@@ -1,0 +1,31 @@
+# Everything in this file is EXCLUDED from the WordPress.org release zip.
+# This is what fixes the "dev files leaking into the shipped plugin"
+# issue from the earlier build audit - keep it in sync with any new
+# dev-only tooling added to the repo root.
+
+.git
+.github
+.gitignore
+.distignore
+.editorconfig
+.phpcs-cache
+.phpunit.cache
+.phpunit.result.cache
+
+composer.json
+composer.lock
+phpcs.xml.dist
+phpstan.neon.dist
+phpunit.xml.dist
+
+tests/
+vendor/
+node_modules/
+
+README.md
+CONTRIBUTING.md
+CHANGELOG.md
+
+.DS_Store
+Thumbs.db
+*.log

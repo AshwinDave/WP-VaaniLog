@@ -2,7 +2,7 @@
 /**
  * Settings view.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  * @var array $settings
  * @var bool  $updated
  */
@@ -75,6 +75,24 @@ $tracking_options = array(
 				</label>
 			<?php endforeach; ?>
 		</div>
+
+		<h2 class="vaanilog-section-title"><?php esc_html_e( 'Data Retention', 'wp-vaanilog' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'Older log entries are removed automatically once a day so the log table does not grow forever.', 'wp-vaanilog' ); ?>
+		</p>
+		<p>
+			<label for="vaanilog-log-retention-days">
+				<?php esc_html_e( 'Keep activity logs for', 'wp-vaanilog' ); ?>
+			</label><br />
+			<?php $retention = isset( $settings['log_retention_days'] ) ? (int) $settings['log_retention_days'] : 90; ?>
+			<select name="log_retention_days" id="vaanilog-log-retention-days">
+				<option value="30" <?php selected( $retention, 30 ); ?>><?php esc_html_e( '30 days', 'wp-vaanilog' ); ?></option>
+				<option value="90" <?php selected( $retention, 90 ); ?>><?php esc_html_e( '90 days', 'wp-vaanilog' ); ?></option>
+				<option value="180" <?php selected( $retention, 180 ); ?>><?php esc_html_e( '180 days', 'wp-vaanilog' ); ?></option>
+				<option value="365" <?php selected( $retention, 365 ); ?>><?php esc_html_e( '1 year', 'wp-vaanilog' ); ?></option>
+				<option value="0" <?php selected( $retention, 0 ); ?>><?php esc_html_e( 'Forever (not recommended)', 'wp-vaanilog' ); ?></option>
+			</select>
+		</p>
 
 		<div class="vaanilog-save-bar">
 			<?php submit_button( __( 'Save Settings', 'wp-vaanilog' ), 'primary', 'vaanilog_settings_submit', false ); ?>

@@ -2,7 +2,7 @@
 /**
  * Event details view.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  * @var object|null $event
  */
 
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php else : ?>
 		<?php $dt = vaanilog_format_datetime( $event->created_at ); ?>
 
-		<div class="vaanilog-details-card <?php echo $event->critical ? 'is-critical' : ''; ?>">
+		<div class="vaanilog-details-card <?php echo esc_attr( $event->critical ? 'is-critical' : '' ); ?>">
 			<table class="widefat vaanilog-details-table">
 				<tbody>
 					<tr>
@@ -49,12 +49,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<th><?php esc_html_e( 'Object Name', 'wp-vaanilog' ); ?></th>
 						<td><?php echo esc_html( $event->object_name ); ?></td>
 					</tr>
-					<?php if ( $event->ip_address ) : ?>
-					<tr>
-						<th><?php esc_html_e( 'IP Address', 'wp-vaanilog' ); ?></th>
-						<td><?php echo esc_html( $event->ip_address ); ?></td>
-					</tr>
-					<?php endif; ?>
 					<tr>
 						<th><?php esc_html_e( 'Critical Level', 'wp-vaanilog' ); ?></th>
 						<td><?php echo $event->critical ? esc_html__( 'Critical', 'wp-vaanilog' ) : esc_html__( 'Normal', 'wp-vaanilog' ); ?></td>

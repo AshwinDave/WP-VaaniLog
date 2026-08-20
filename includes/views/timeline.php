@@ -2,7 +2,7 @@
 /**
  * Timeline view.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  * @var array  $events
  * @var int    $total_events
  * @var int    $total_pages
@@ -99,7 +99,7 @@ $base_page = $only_critical && empty( $_GET['type_filter'] ) ? 'vaanilog-critica
 				<?php endif; ?>
 
 				
-					<a class="vaanilog-timeline-row <?php echo $event->critical ? 'is-critical' : ''; ?>"
+					<a class="vaanilog-timeline-row <?php echo esc_attr( $event->critical ? 'is-critical' : '' ); ?>"
 					href="<?php echo esc_url( admin_url( 'admin.php?page=' . $base_page . '&event_id=' . $event->id ) ); ?>"
 				>
 					<span class="vaanilog-row-icon">
@@ -141,7 +141,7 @@ $base_page = $only_critical && empty( $_GET['type_filter'] ) ? 'vaanilog-critica
 				$query_args['paged'] = $i;
 				$url                 = add_query_arg( $query_args, admin_url( 'admin.php' ) );
 				?>
-				<a href="<?php echo esc_url( $url ); ?>" class="vaanilog-page-link <?php echo $i === (int) $paged ? 'is-current' : ''; ?>">
+				<a href="<?php echo esc_url( $url ); ?>" class="vaanilog-page-link <?php echo esc_attr( $i === (int) $paged ? 'is-current' : '' ); ?>">
 					<?php echo esc_html( $i ); ?>
 				</a>
 			<?php endfor; ?>

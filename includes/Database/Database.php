@@ -122,6 +122,32 @@ final class Database implements LoggerRepositoryInterface {
 	}
 
 	/**
+	 * Delete log rows older than the given number of days. Used by the
+	 * daily retention cron (see Core\Cleanup) so the log table doesn't
+	 * grow without bound - both a storage concern and a data-minimization
+	 * one, since old rows may still reference removed users/content.
+	 *
+	 * @param int $days Rows older than this many days are deleted.
+	 * @return int Number of rows deleted (0 on failure or if $days <= 0).
+	 */
+	public static function prune_older_than( int $days ): int {
+
+		if ( $days <= 0 ) {
+			return 0;
+		}
+
+		global $wpdb;
+
+		$table  = self::table();
+		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", $cutoff ) );
+
+		return false === $deleted ? 0 : (int) $deleted;
+	}
+
+	/**
 	 * Install database.
 	 */
 	public static function install(): void {
@@ -159,11 +185,32 @@ final class Database implements LoggerRepositoryInterface {
 	}
 
 	/**
- * Get log table name.
- *
- * @return string
- */
-public static function table(): string {
+	 * Run the installer if the stored schema version doesn't match the
+	 * running plugin version. dbDelta() is safe to re-run (it diffs the
+	 * existing table against the target schema), so this keeps sites
+	 * that never deactivate/reactivate the plugin in sync with schema
+	 * changes shipped in updates, instead of only ever installing once.
+	 *
+	 * Cheap to call on every request: a single autoloaded option read
+	 * when already up to date.
+	 */
+	public static function maybe_upgrade(): void {
+
+		if ( get_option( 'vaanilog_db_version' ) === VAANILOG_VERSION ) {
+			return;
+		}
+
+		self::install();
+
+		update_option( 'vaanilog_db_version', VAANILOG_VERSION );
+	}
+
+	/**
+	 * Get log table name.
+	 *
+	 * @return string
+	 */
+	public static function table(): string {
 
 	global $wpdb;
 

@@ -2,7 +2,7 @@
 /**
  * Dashboard view.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -117,8 +117,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="vaanilog-health-item">
 					<span class="vaanilog-health-label">Debug</span>
-					<span class="vaanilog-health-value <?php echo $system['wp_debug'] ? 'is-warning' : ''; ?>">
-						<?php echo $system['wp_debug'] ? 'Enabled' : 'Disabled'; ?>
+					<span class="vaanilog-health-value <?php echo esc_attr( $system['wp_debug'] ? 'is-warning' : '' ); ?>">
+						<?php echo esc_html( $system['wp_debug'] ? 'Enabled' : 'Disabled' ); ?>
 					</span>
 				</div>
 
@@ -160,7 +160,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<?php $dt = vaanilog_format_datetime( $event->created_at ); ?>
 
-					<div class="vaanilog-timeline-item <?php echo $event->critical ? 'is-critical' : ''; ?>">
+					<div class="vaanilog-timeline-item <?php echo esc_attr( $event->critical ? 'is-critical' : '' ); ?>">
 
 						<div class="vaanilog-timeline-icon">
 

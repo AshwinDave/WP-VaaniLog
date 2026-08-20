@@ -1,0 +1,59 @@
+{
+    "name": "ashwindave/wp-vaanilog",
+    "description": "Track important changes on your WordPress site with a clear, human-readable activity timeline.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "WPVaaniLog\\": "includes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WPVaaniLog\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
+        "phpcsstandards/phpcsextra": "^1.5",
+        "phpcsstandards/phpcsutils": "^1.2",
+        "wp-coding-standards/wpcs": "^3.3",
+        "squizlabs/php_codesniffer": "^3.13",
+
+        "phpstan/phpstan": "^2.1",
+        "phpstan/extension-installer": "^1.4",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+
+        "phpunit/phpunit": "^10.5",
+        "yoast/phpunit-polyfills": "^2.0"
+    },
+    "scripts": {
+        "lint": "phpcs",
+        "lint:fix": "phpcbf",
+        "analyse": "phpstan analyse --memory-limit=512M",
+        "test": "phpunit",
+        "check": [
+            "@lint",
+            "@analyse",
+            "@test"
+        ]
+    },
+    "scripts-descriptions": {
+        "lint": "Run WordPress Coding Standards (PHPCS) against includes/.",
+        "lint:fix": "Auto-fix what PHPCS can fix automatically.",
+        "analyse": "Run PHPStan static analysis.",
+        "test": "Run the PHPUnit test suite.",
+        "check": "Run lint + static analysis + tests, in that order (what CI runs)."
+    }
+}

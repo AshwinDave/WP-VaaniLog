@@ -2,7 +2,7 @@
 /**
  * Timeline screen with search and filters.
  *
- * @package WP_Change_Monitor
+ * @package WPVaaniLog
  */
 
 namespace WPVaaniLog\Timeline;

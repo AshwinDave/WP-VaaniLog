@@ -15,6 +15,10 @@ final class Activator {
 
 		Database::install();
 
+		update_option( 'vaanilog_db_version', VAANILOG_VERSION );
+
+		Cleanup::schedule();
+
 		flush_rewrite_rules();
 
 	}
