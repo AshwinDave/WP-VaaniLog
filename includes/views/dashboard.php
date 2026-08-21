@@ -2,12 +2,35 @@
 /**
  * Dashboard view.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+/**
+ * Variables provided by Dashboard::render().
+ *
+ * @var array{
+ *     total_today: int,
+ *     critical_today: int,
+ *     plugin_updates_today: int,
+ *     theme_updates_today: int,
+ *     content_changes_today: int
+ * } $stats
+ * @var array<string, int> $chart
+ * @var array{
+ *     wp_version: string,
+ *     php_version: string,
+ *     memory_limit: string,
+ *     wp_debug: bool,
+ *     cron: string,
+ *     theme: string,
+ *     plugins: int
+ * } $system
+ * @var array<int, object> $recent
+ */
 ?>
 
 <div class="wrap vaanilog-dashboard">
@@ -16,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="vaanilog-hero-left">
 
-			<h1>WP VaaniLog</h1>
+			<h1>Vaanilog</h1>
 
 			<p>
 				Monitor every important change happening on your WordPress website.
@@ -44,27 +67,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="vaanilog-stat-card">
 			<span class="label">Today's Changes</span>
-			<h2><?php echo esc_html( $stats['total_today'] ); ?></h2>
+			<h2><?php echo absint( $stats['total_today'] ); ?></h2>
 		</div>
 
 		<div class="vaanilog-stat-card critical">
 			<span class="label">Critical</span>
-			<h2><?php echo esc_html( $stats['critical_today'] ); ?></h2>
+			<h2><?php echo absint( $stats['critical_today'] ); ?></h2>
 		</div>
 
 		<div class="vaanilog-stat-card">
 			<span class="label">Plugin Updates</span>
-			<h2><?php echo esc_html( $stats['plugin_updates_today'] ); ?></h2>
+			<h2><?php echo absint( $stats['plugin_updates_today'] ); ?></h2>
 		</div>
 
 		<div class="vaanilog-stat-card">
 			<span class="label">Theme Updates</span>
-			<h2><?php echo esc_html( $stats['theme_updates_today'] ); ?></h2>
+			<h2><?php echo absint( $stats['theme_updates_today'] ); ?></h2>
 		</div>
 
 		<div class="vaanilog-stat-card">
 			<span class="label">Content Changes</span>
-			<h2><?php echo esc_html( $stats['content_changes_today'] ); ?></h2>
+			<h2><?php echo absint( $stats['content_changes_today'] ); ?></h2>
 		</div>
 
 	</div>
@@ -80,14 +103,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$chart_max = max( 1, max( array_values( $chart ) ) );
 			?>
 
-			<div class="vaanilog-activity-chart" aria-label="<?php esc_attr_e( 'Changes over the last seven days', 'wp-vaanilog' ); ?>">
+			<div class="vaanilog-activity-chart" aria-label="<?php esc_attr_e( 'Changes over the last seven days', 'vaanilog' ); ?>">
 				<?php foreach ( $chart as $date => $total ) : ?>
 					<div class="vaanilog-activity-day">
 						<div class="vaanilog-activity-bar-wrap">
 							<div class="vaanilog-activity-bar" style="height: <?php echo esc_attr( (string) max( 4, round( ( $total / $chart_max ) * 100 ) ) ); ?>%;"></div>
 						</div>
 						<span><?php echo esc_html( wp_date( 'M j', strtotime( $date ) ) ); ?></span>
-						<strong><?php echo esc_html( $total ); ?></strong>
+						<strong><?php echo absint( $total ); ?></strong>
 					</div>
 				<?php endforeach; ?>
 			</div>
@@ -134,7 +157,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="vaanilog-health-item vaanilog-health-item-full">
 					<span class="vaanilog-health-label">Active Plugins</span>
-					<span class="vaanilog-health-value"><?php echo esc_html( $system['plugins'] ); ?></span>
+					<span class="vaanilog-health-value"><?php echo absint( $system['plugins'] ); ?></span>
 				</div>
 
 			</div>

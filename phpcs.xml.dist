@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<ruleset name="WP VaaniLog">
+<ruleset name="Vaanilog">
 
-	<description>WordPress Coding Standards for WP VaaniLog.</description>
+	<description>WordPress Coding Standards for Vaanilog.</description>
 
 	<!-- Scan these paths. -->
 	<file>includes</file>
-	<file>wp-vaanilog.php</file>
+	<file>vaanilog.php</file>
 	<file>uninstall.php</file>
 
 	<!-- Never scan these. -->
@@ -27,7 +27,7 @@
 	<rule ref="WordPress">
 
 		<!--
-			WP VaaniLog uses PSR-4 class filenames.
+			Vaanilog uses PSR-4 class filenames.
 			Do not enforce WordPress class filename conventions.
 		-->
 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
@@ -46,18 +46,18 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="wp-vaanilog"/>
+				<element value="vaanilog"/>
 			</property>
 		</properties>
 	</rule>
 
-	<!-- WP VaaniLog global variable prefixes. -->
+	<!-- Vaanilog global variable prefixes. -->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="vaanilog"/>
 				<element value="VAANILOG"/>
-				<element value="WPVaaniLog"/>
+				<element value="Vaanilog"/>
 			</property>
 		</properties>
 		

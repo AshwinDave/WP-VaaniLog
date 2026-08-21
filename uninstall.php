@@ -1,8 +1,8 @@
 <?php
 /**
- * Uninstall WP VaaniLog.
+ * Uninstall Vaanilog.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
@@ -10,4 +10,4 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/Core/Uninstaller.php';
-WPVaaniLog\Core\Uninstaller::uninstall();
+Vaanilog\Core\Uninstaller::uninstall();

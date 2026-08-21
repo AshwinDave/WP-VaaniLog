@@ -2,7 +2,7 @@
 /**
  * Timeline view.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  * @var array  $events
  * @var int    $total_events
  * @var int    $total_pages
@@ -33,32 +33,32 @@ $base_page = $only_critical && empty( $_GET['type_filter'] ) ? 'vaanilog-critica
 			type="search"
 			name="s"
 			class="vaanilog-search-input"
-			placeholder="<?php esc_attr_e( 'Search by user, plugin, theme, page, event...', 'wp-vaanilog' ); ?>"
+			placeholder="<?php esc_attr_e( 'Search by user, plugin, theme, page, event...', 'vaanilog' ); ?>"
 			value="<?php echo esc_attr( $search ); ?>"
 		/>
 
 		<select name="date_filter">
-			<option value=""><?php esc_html_e( 'All Dates', 'wp-vaanilog' ); ?></option>
-			<option value="today" <?php selected( $date_filter, 'today' ); ?>><?php esc_html_e( 'Today', 'wp-vaanilog' ); ?></option>
-			<option value="yesterday" <?php selected( $date_filter, 'yesterday' ); ?>><?php esc_html_e( 'Yesterday', 'wp-vaanilog' ); ?></option>
-			<option value="7days" <?php selected( $date_filter, '7days' ); ?>><?php esc_html_e( 'Last 7 Days', 'wp-vaanilog' ); ?></option>
-			<option value="30days" <?php selected( $date_filter, '30days' ); ?>><?php esc_html_e( 'Last 30 Days', 'wp-vaanilog' ); ?></option>
+			<option value=""><?php esc_html_e( 'All Dates', 'vaanilog' ); ?></option>
+			<option value="today" <?php selected( $date_filter, 'today' ); ?>><?php esc_html_e( 'Today', 'vaanilog' ); ?></option>
+			<option value="yesterday" <?php selected( $date_filter, 'yesterday' ); ?>><?php esc_html_e( 'Yesterday', 'vaanilog' ); ?></option>
+			<option value="7days" <?php selected( $date_filter, '7days' ); ?>><?php esc_html_e( 'Last 7 Days', 'vaanilog' ); ?></option>
+			<option value="30days" <?php selected( $date_filter, '30days' ); ?>><?php esc_html_e( 'Last 30 Days', 'vaanilog' ); ?></option>
 		</select>
 
 		<?php if ( ! $only_critical ) : ?>
 		<select name="type_filter">
-			<option value=""><?php esc_html_e( 'All Types', 'wp-vaanilog' ); ?></option>
-			<option value="user" <?php selected( $type_filter, 'user' ); ?>><?php esc_html_e( 'Users', 'wp-vaanilog' ); ?></option>
-			<option value="plugin" <?php selected( $type_filter, 'plugin' ); ?>><?php esc_html_e( 'Plugins', 'wp-vaanilog' ); ?></option>
-			<option value="theme" <?php selected( $type_filter, 'theme' ); ?>><?php esc_html_e( 'Themes', 'wp-vaanilog' ); ?></option>
-			<option value="post" <?php selected( $type_filter, 'post' ); ?>><?php esc_html_e( 'Posts', 'wp-vaanilog' ); ?></option>
-			<option value="page" <?php selected( $type_filter, 'page' ); ?>><?php esc_html_e( 'Pages', 'wp-vaanilog' ); ?></option>
+			<option value=""><?php esc_html_e( 'All Types', 'vaanilog' ); ?></option>
+			<option value="user" <?php selected( $type_filter, 'user' ); ?>><?php esc_html_e( 'Users', 'vaanilog' ); ?></option>
+			<option value="plugin" <?php selected( $type_filter, 'plugin' ); ?>><?php esc_html_e( 'Plugins', 'vaanilog' ); ?></option>
+			<option value="theme" <?php selected( $type_filter, 'theme' ); ?>><?php esc_html_e( 'Themes', 'vaanilog' ); ?></option>
+			<option value="post" <?php selected( $type_filter, 'post' ); ?>><?php esc_html_e( 'Posts', 'vaanilog' ); ?></option>
+			<option value="page" <?php selected( $type_filter, 'page' ); ?>><?php esc_html_e( 'Pages', 'vaanilog' ); ?></option>
 		</select>
 		<?php endif; ?>
 
-		<button type="submit" class="button button-secondary"><?php esc_html_e( 'Filter', 'wp-vaanilog' ); ?></button>
+		<button type="submit" class="button button-secondary"><?php esc_html_e( 'Filter', 'vaanilog' ); ?></button>
 		<?php if ( $search || $date_filter || $type_filter ) : ?>
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $base_page ) ); ?>" class="button-link vaanilog-clear-link"><?php esc_html_e( 'Clear', 'wp-vaanilog' ); ?></a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $base_page ) ); ?>" class="button-link vaanilog-clear-link"><?php esc_html_e( 'Clear', 'vaanilog' ); ?></a>
 		<?php endif; ?>
 	</form>
 
@@ -66,7 +66,7 @@ $base_page = $only_critical && empty( $_GET['type_filter'] ) ? 'vaanilog-critica
 		<?php
 		printf(
 			/* translators: %d: number of matching events */
-			esc_html( _n( '%d event found', '%d events found', $total_events, 'wp-vaanilog' ) ),
+			esc_html( _n( '%d event found', '%d events found', $total_events, 'vaanilog' ) ),
 			(int) $total_events
 		);
 		?>
@@ -74,7 +74,7 @@ $base_page = $only_critical && empty( $_GET['type_filter'] ) ? 'vaanilog-critica
 
 	<div class="vaanilog-timeline vaanilog-timeline-compact">
 		<?php if ( empty( $events ) ) : ?>
-			<p class="vaanilog-empty"><?php esc_html_e( 'No matching changes found. Try adjusting your search or filters.', 'wp-vaanilog' ); ?></p>
+			<p class="vaanilog-empty"><?php esc_html_e( 'No matching changes found. Try adjusting your search or filters.', 'vaanilog' ); ?></p>
 		<?php else : ?>
 			<?php
 			$last_group = '';
@@ -85,9 +85,9 @@ $base_page = $only_critical && empty( $_GET['type_filter'] ) ? 'vaanilog-critica
 				$yesterday  = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
 
 				if ( $event_date === $today ) {
-					$group_label = __( 'Today', 'wp-vaanilog' );
+					$group_label = __( 'Today', 'vaanilog' );
 				} elseif ( $event_date === $yesterday ) {
-					$group_label = __( 'Yesterday', 'wp-vaanilog' );
+					$group_label = __( 'Yesterday', 'vaanilog' );
 				} else {
 					$group_label = $dt['date'];
 				}
@@ -109,7 +109,7 @@ $base_page = $only_critical && empty( $_GET['type_filter'] ) ? 'vaanilog-critica
 					<span class="vaanilog-row-title">
 						<?php echo esc_html( vaanilog_event_label( $event->event_type ) ); ?>
 						<?php if ( $event->critical ) : ?>
-							<span class="vaanilog-badge-critical"><?php esc_html_e( 'Critical', 'wp-vaanilog' ); ?></span>
+							<span class="vaanilog-badge-critical"><?php esc_html_e( 'Critical', 'vaanilog' ); ?></span>
 						<?php endif; ?>
 					</span>
 
@@ -142,7 +142,7 @@ $base_page = $only_critical && empty( $_GET['type_filter'] ) ? 'vaanilog-critica
 				$url                 = add_query_arg( $query_args, admin_url( 'admin.php' ) );
 				?>
 				<a href="<?php echo esc_url( $url ); ?>" class="vaanilog-page-link <?php echo esc_attr( $i === (int) $paged ? 'is-current' : '' ); ?>">
-					<?php echo esc_html( $i ); ?>
+					<?php echo (int) $i; ?>
 				</a>
 			<?php endfor; ?>
 		</div>

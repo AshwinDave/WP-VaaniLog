@@ -2,10 +2,10 @@
 /**
  * Search class for querying timeline events.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Database;
+namespace Vaanilog\Database;
 
 defined( 'ABSPATH' ) || exit;
 

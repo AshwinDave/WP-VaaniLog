@@ -2,12 +2,12 @@
 /**
  * Handles plugin activation.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Core;
+namespace Vaanilog\Core;
 
-use WPVaaniLog\Database\Database;
+use Vaanilog\Database\Database;
 
 defined( 'ABSPATH' ) || exit;
 

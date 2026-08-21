@@ -2,10 +2,10 @@
 /**
  * Unit tests for includes/helpers.php.
  *
- * @package WPVaaniLog\Tests
+ * @package Vaanilog\Tests
  */
 
-namespace WPVaaniLog\Tests\Unit;
+namespace Vaanilog\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 

@@ -1,5 +1,5 @@
 {
-    "name": "ashwindave/wp-vaanilog",
+    "name": "ashwindave/vaanilog",
     "description": "Track important changes on your WordPress site with a clear, human-readable activity timeline.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
@@ -8,12 +8,12 @@
     },
     "autoload": {
         "psr-4": {
-            "WPVaaniLog\\": "includes/"
+            "Vaanilog\\": "includes/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "WPVaaniLog\\Tests\\": "tests/"
+            "Vaanilog\\Tests\\": "tests/"
         }
     },
     "config": {
@@ -41,7 +41,7 @@
     "scripts": {
         "lint": "phpcs",
         "lint:fix": "phpcbf",
-        "analyse": "phpstan analyse --memory-limit=512M",
+        "analyse": "phpstan analyse --memory-limit=1G",
         "test": "phpunit",
         "check": [
             "@lint",

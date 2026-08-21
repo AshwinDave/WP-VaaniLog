@@ -2,10 +2,10 @@
 /**
  * Admin asset registration.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Admin;
+namespace Vaanilog\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -38,7 +38,7 @@ class Assets {
 
 		wp_enqueue_style(
 			'vaanilog-admin',
-			VAANILOG_PLUGIN_URL . 'assets/css/admin.css',
+			plugin_dir_url( dirname( dirname( __DIR__ ) ) ) . 'assets/css/admin.css',
 			array(),
 			VAANILOG_VERSION
 		);

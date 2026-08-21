@@ -8,12 +8,12 @@
  * other reasons. Retention period is user-configurable in Settings
  * (default 90 days, 0 = keep forever).
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Core;
+namespace Vaanilog\Core;
 
-use WPVaaniLog\Database\Database;
+use Vaanilog\Database\Database;
 
 defined( 'ABSPATH' ) || exit;
 

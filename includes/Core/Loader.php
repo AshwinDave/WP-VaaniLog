@@ -2,14 +2,14 @@
 /**
  * Boots the plugin components.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Core;
+namespace Vaanilog\Core;
 
-use WPVaaniLog\Admin\Assets;
-use WPVaaniLog\Admin\Menu;
-use WPVaaniLog\Database\Database;
+use Vaanilog\Admin\Assets;
+use Vaanilog\Admin\Menu;
+use Vaanilog\Database\Database;
 
 defined( 'ABSPATH' ) || exit;
 

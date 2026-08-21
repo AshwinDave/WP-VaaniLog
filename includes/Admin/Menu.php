@@ -1,15 +1,15 @@
 <?php
 /**
- * Registers WP VaaniLog admin menus.
+ * Registers Vaanilog admin menus.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Admin;
+namespace Vaanilog\Admin;
 
-use WPVaaniLog\Dashboard\Dashboard;
-use WPVaaniLog\Timeline\Timeline;
-use WPVaaniLog\Settings\Settings;
+use Vaanilog\Dashboard\Dashboard;
+use Vaanilog\Timeline\Timeline;
+use Vaanilog\Settings\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,8 +35,8 @@ final class Menu {
 	public function register(): void {
 
 		add_menu_page(
-			__( 'WP VaaniLog', 'wp-vaanilog' ),
-			__( 'Change Monitor', 'wp-vaanilog' ),
+			__( 'Vaanilog', 'vaanilog' ),
+			__( 'Change Monitor', 'vaanilog' ),
 			'manage_options',
 			'vaanilog-dashboard',
 			array( new Dashboard(), 'render' ),
@@ -46,8 +46,8 @@ final class Menu {
 
 		add_submenu_page(
 			'vaanilog-dashboard',
-			__( 'Timeline', 'wp-vaanilog' ),
-			__( 'Timeline', 'wp-vaanilog' ),
+			__( 'Timeline', 'vaanilog' ),
+			__( 'Timeline', 'vaanilog' ),
 			'manage_options',
 			'vaanilog-timeline',
 			array( new Timeline(), 'render' )
@@ -55,8 +55,8 @@ final class Menu {
 
 		add_submenu_page(
 			'vaanilog-dashboard',
-			__( 'Settings', 'wp-vaanilog' ),
-			__( 'Settings', 'wp-vaanilog' ),
+			__( 'Settings', 'vaanilog' ),
+			__( 'Settings', 'vaanilog' ),
 			'manage_options',
 			'vaanilog-settings',
 			array( new Settings(), 'render' )
@@ -64,8 +64,8 @@ final class Menu {
 
 		add_submenu_page(
 			'vaanilog-dashboard',
-			__( 'About', 'wp-vaanilog' ),
-			__( 'About', 'wp-vaanilog' ),
+			__( 'About', 'vaanilog' ),
+			__( 'About', 'vaanilog' ),
 			'manage_options',
 			'vaanilog-about',
 			array( $this, 'about_page' )
@@ -78,6 +78,6 @@ final class Menu {
 	 * @return void
 	 */
 	public function about_page(): void {
-		require VAANILOG_PLUGIN_DIR . 'includes/views/about.php';
+		require dirname( __DIR__ ) . '/views/about.php';
 	}
 }

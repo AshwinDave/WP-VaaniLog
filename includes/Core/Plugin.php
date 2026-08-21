@@ -2,10 +2,10 @@
 /**
  * Main plugin service container.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Core;
+namespace Vaanilog\Core;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -1,16 +1,16 @@
 <?php
 /**
- * Plugin Name: WP VaaniLog
- * Plugin URI: https://github.com/AshwinDave/wp-vaanilog
+ * Plugin Name: VaaniLog
+ * Plugin URI: https://github.com/AshwinDave/vaanilog
  * Description: Track important changes on your WordPress site with a clear, human-readable activity timeline.
  * Version: 1.0.1
  * Requires at least: 6.5
  * Requires PHP: 8.1
  * Author: Ashwin Dave
  * License: GPL v2 or later
- * Text Domain: wp-vaanilog
+ * Text Domain: vaanilog
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
 |--------------------------------------------------------------------------
 */
 
-define( 'VAANILOG_VERSION', '1.0.1' );
+define( 'VAANILOG_VERSION', '1.0.0' );
 define( 'VAANILOG_PLUGIN_FILE', __FILE__ );
 define( 'VAANILOG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'VAANILOG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -36,7 +36,7 @@ define( 'VAANILOG_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 */
 spl_autoload_register(
 	function ( $class ) {
-		$prefix = 'WPVaaniLog\\';
+		$prefix = 'Vaanilog\\';
 
 		if ( 0 !== strpos( $class, $prefix ) ) {
 			return;
@@ -61,8 +61,8 @@ require_once VAANILOG_PLUGIN_DIR . 'includes/helpers.php';
 | actually created on activation and cleanup never ran on deactivation.
 */
 
-register_activation_hook( __FILE__, array( 'WPVaaniLog\\Core\\Activator', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'WPVaaniLog\\Core\\Deactivator', 'deactivate' ) );
+register_activation_hook( __FILE__, array( 'Vaanilog\\Core\\Activator', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'Vaanilog\\Core\\Deactivator', 'deactivate' ) );
 
 /*
 |--------------------------------------------------------------------------
@@ -70,4 +70,4 @@ register_deactivation_hook( __FILE__, array( 'WPVaaniLog\\Core\\Deactivator', 'd
 |--------------------------------------------------------------------------
 */
 
-WPVaaniLog\Core\Plugin::instance()->boot();
+Vaanilog\Core\Plugin::instance()->boot();

@@ -2,10 +2,10 @@
 /**
  * Settings screen.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Settings;
+namespace Vaanilog\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -49,6 +49,6 @@ class Settings {
 			$updated = true;
 		}
 
-		include VAANILOG_PLUGIN_DIR . 'includes/views/settings.php';
+		include dirname( __DIR__, 2 ) . '/includes/views/settings.php';
 	}
 }

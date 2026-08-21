@@ -7,10 +7,10 @@
  * $wpdb today, potentially something else tomorrow) and can be unit
  * tested with a fake implementation instead of hitting a real database.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Database;
+namespace Vaanilog\Database;
 
 defined( 'ABSPATH' ) || exit;
 

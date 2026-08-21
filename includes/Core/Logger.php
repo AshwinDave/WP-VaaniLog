@@ -4,19 +4,19 @@
  * change-log table via an injected LoggerRepositoryInterface.
  *
  * This is the piece that was missing entirely in the previous version:
- * the plugin had a Dashboard/Timeline/Search that could only *read* the
+ * the plugin had a Dashboard/Timeline/Search that could only read the
  * log table, but nothing ever wrote to it.
  *
  * The repository is constructor-injected rather than called statically
  * so this class stays decoupled from the storage implementation and is
  * unit-testable with a fake repository.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Core;
+namespace Vaanilog\Core;
 
-use WPVaaniLog\Database\LoggerRepositoryInterface;
+use Vaanilog\Database\LoggerRepositoryInterface;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,22 +28,13 @@ final class Logger {
 	/**
 	 * Storage backend the logger writes events to. Typed against the
 	 * interface (not the concrete Database class) so this class never
-	 * has to know *how* events are persisted, and so it can be unit
+	 * has to know how events are persisted, and so it can be unit
 	 * tested by injecting a fake repository instead of a real $wpdb
 	 * connection.
 	 *
 	 * @var LoggerRepositoryInterface
 	 */
 	private LoggerRepositoryInterface $db;
-
-	/**
-	 * Create the logger with its storage repository.
-	 *
-	 * @param LoggerRepositoryInterface $db Repository used to persist events.
-	 */
-	public function __construct( LoggerRepositoryInterface $db ) {
-		$this->db = $db;
-	}
 
 	/**
 	 * Option names that are noisy/internal and should never be logged,
@@ -59,15 +50,14 @@ final class Logger {
 		'auto_updater.lock',
 		'db_upgraded',
 		'recently_activated',
-		'theme_mods_', // per-theme customizer/widget/menu data - noise on switch.
-		'_vaanilog_', // any internal option this plugin itself may add later.
+		'theme_mods_',
+		'_vaanilog_',
 	);
 
 	/**
 	 * Exact option names to never log individually because they are
-	 * already represented by a dedicated event (e.g. theme_switched
-	 * covers 'template', 'stylesheet', 'current_theme', etc. all at
-	 * once), or because they're purely internal WP bookkeeping.
+	 * already represented by a dedicated event, or because they are
+	 * purely internal WordPress bookkeeping.
 	 *
 	 * @var string[]
 	 */
@@ -82,9 +72,18 @@ final class Logger {
 	);
 
 	/**
+	 * Create the logger with its storage repository.
+	 *
+	 * @param LoggerRepositoryInterface $db Repository used to persist events.
+	 */
+	public function __construct( LoggerRepositoryInterface $db ) {
+		$this->db = $db;
+	}
+
+	/**
 	 * Wire up every hook. Safe to call unconditionally on every request
-	 * (front-end and admin) because change events (login, post save,
-	 * plugin update, etc.) can happen outside wp-admin too.
+	 * (front-end and admin) because change events can happen outside
+	 * wp-admin too.
 	 */
 	public function register(): void {
 
@@ -105,7 +104,7 @@ final class Logger {
 		add_action( 'activated_plugin', array( $this, 'on_activated_plugin' ) );
 		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ) );
 		add_action( 'deleted_plugin', array( $this, 'on_deleted_plugin' ), 10, 2 );
-		add_action( 'switch_theme', array( $this, 'on_switch_theme' ), 10, 3 );
+		add_action( 'switch_theme', array( $this, 'on_switch_theme' ), 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2 );
 
 		// Settings (options).
@@ -116,7 +115,7 @@ final class Logger {
 	 * Whether a given tracking category is enabled in Settings.
 	 * Defaults to "on" if settings have never been saved.
 	 *
-	 * @param string $key e.g. 'track_posts'.
+	 * @param string $key Setting key, e.g. 'track_posts'.
 	 * @return bool
 	 */
 	private function tracking_enabled( string $key ): bool {
@@ -131,23 +130,25 @@ final class Logger {
 	 * readability at each call site below.
 	 *
 	 * @param array $data Event data to persist.
+	 * @return void
 	 */
 	private function log( array $data ): void {
 		$this->db->insert_event( $data );
 	}
 
 	/*
-	|--------------------------------------------------------------------
+	|--------------------------------------------------------------------------
 	| Posts & Pages
-	|--------------------------------------------------------------------
+	|--------------------------------------------------------------------------
 	*/
 
 	/**
-	 * Handle the on transition post status event.
+	 * Handle the post status transition event.
 	 *
-	 * @param string   $new_status New post status.
-	 * @param string   $old_status Previous post status.
-	 * @param \WP_Post $post       Post object.
+	 * @param string $new_status New post status.
+	 * @param string $old_status Previous post status.
+	 * @param mixed  $post       Post object.
+	 * @return void
 	 */
 	public function on_transition_post_status( $new_status, $old_status, $post ): void {
 
@@ -168,18 +169,21 @@ final class Logger {
 			return;
 		}
 
-		// Skip the auto-draft placeholder WP creates before a post is
-		// first saved - that's not a real edit yet.
+		// Skip the auto-draft placeholder WordPress creates before a post
+		// is first saved - that's not a real edit yet.
 		if ( 'auto-draft' === $old_status && 'auto-draft' === $new_status ) {
 			return;
 		}
 
 		$object_type = 'page' === $post->post_type ? 'page' : 'post';
 
-		if ( in_array( $old_status, array( 'new', 'auto-draft' ), true ) && ! in_array( $new_status, array( 'auto-draft', 'trash' ), true ) ) {
+		if (
+			in_array( $old_status, array( 'new', 'auto-draft' ), true )
+			&& ! in_array( $new_status, array( 'auto-draft', 'trash' ), true )
+		) {
 			$event = "{$object_type}_created";
 		} elseif ( 'trash' === $new_status ) {
-			$event = "{$object_type}_deleted"; // moved to trash.
+			$event = "{$object_type}_deleted";
 		} elseif ( 'trash' === $old_status && 'trash' !== $new_status ) {
 			$event = "{$object_type}_restored";
 		} else {
@@ -200,11 +204,13 @@ final class Logger {
 	}
 
 	/**
-	 * Log meaningful edits to an existing post/page with a compact before/after snapshot.
+	 * Log meaningful edits to an existing post/page with a compact
+	 * before/after snapshot.
 	 *
-	 * @param int      $post_id     Updated post ID.
-	 * @param \WP_Post $post_after  Post after the update.
-	 * @param \WP_Post $post_before Post before the update.
+	 * @param int   $post_id     Updated post ID.
+	 * @param mixed $post_after  Post after the update.
+	 * @param mixed $post_before Post before the update.
+	 * @return void
 	 */
 	public function on_post_updated( $post_id, $post_after, $post_before ): void {
 
@@ -226,14 +232,16 @@ final class Logger {
 
 		// Creation, deletion and restore are already represented by the
 		// transition hook. This event is only for actual edits.
-		if ( $post_after->post_status !== $post_before->post_status
+		if (
+			$post_after->post_status !== $post_before->post_status
 			|| $post_after->post_title !== $post_before->post_title
 			|| $post_after->post_content !== $post_before->post_content
-			|| $post_after->post_excerpt !== $post_before->post_excerpt ) {
+			|| $post_after->post_excerpt !== $post_before->post_excerpt
+		) {
 
-			// Store metadata and cryptographic fingerprints only. Raw post content
-			// is intentionally not copied into the audit log because it may contain
-			// personal, confidential, or otherwise sensitive information.
+			// Store metadata and cryptographic fingerprints only. Raw post
+			// content is intentionally not copied into the audit log because
+			// it may contain personal, confidential, or otherwise sensitive data.
 			$old_snapshot = vaanilog_post_snapshot( $post_before );
 			$new_snapshot = vaanilog_post_snapshot( $post_after );
 
@@ -253,9 +261,10 @@ final class Logger {
 	}
 
 	/**
-	 * Permanent deletion (bypasses trash, or trash emptied).
+	 * Permanent deletion, bypassing trash or when trash is emptied.
 	 *
 	 * @param int $post_id Post ID.
+	 * @return void
 	 */
 	public function on_before_delete_post( $post_id ): void {
 
@@ -283,15 +292,16 @@ final class Logger {
 	}
 
 	/*
-	|--------------------------------------------------------------------
+	|--------------------------------------------------------------------------
 	| Users
-	|--------------------------------------------------------------------
+	|--------------------------------------------------------------------------
 	*/
 
 	/**
-	 * Handle the on user register event.
+	 * Handle the user register event.
 	 *
 	 * @param int $user_id Newly registered user ID.
+	 * @return void
 	 */
 	public function on_user_register( $user_id ): void {
 
@@ -314,9 +324,10 @@ final class Logger {
 	}
 
 	/**
-	 * Handle the on delete user event.
+	 * Handle the delete user event.
 	 *
 	 * @param int $user_id Deleted user ID.
+	 * @return void
 	 */
 	public function on_delete_user( $user_id ): void {
 
@@ -338,11 +349,12 @@ final class Logger {
 	}
 
 	/**
-	 * Handle the on set user role event.
+	 * Handle the set user role event.
 	 *
 	 * @param int      $user_id   User whose role changed.
 	 * @param string   $role      New role.
 	 * @param string[] $old_roles Previous roles.
+	 * @return void
 	 */
 	public function on_set_user_role( $user_id, $role, $old_roles ): void {
 
@@ -366,10 +378,11 @@ final class Logger {
 	}
 
 	/**
-	 * Handle the on wp login event.
+	 * Handle the WordPress login event.
 	 *
 	 * @param string   $user_login Username.
 	 * @param \WP_User $user       User object.
+	 * @return void
 	 */
 	public function on_wp_login( $user_login, $user = null ): void {
 
@@ -389,9 +402,10 @@ final class Logger {
 	}
 
 	/**
-	 * Handle the on wp logout event.
+	 * Handle the WordPress logout event.
 	 *
 	 * @param int $user_id User logging out.
+	 * @return void
 	 */
 	public function on_wp_logout( $user_id ): void {
 
@@ -413,9 +427,10 @@ final class Logger {
 	}
 
 	/**
-	 * Handle the on password reset event.
+	 * Handle the password reset event.
 	 *
 	 * @param \WP_User $user User whose password was reset.
+	 * @return void
 	 */
 	public function on_password_reset( $user ): void {
 
@@ -427,23 +442,24 @@ final class Logger {
 			array(
 				'event_type'  => 'password_changed',
 				'object_type' => 'user',
-				'object_id'   => $user ? $user->ID : 0,
-				'object_name' => $user ? $user->user_login : '',
+				'object_id'   => $user->ID,
+				'object_name' => $user->user_login,
 				'severity'    => 'critical',
 			)
 		);
 	}
 
 	/*
-	|--------------------------------------------------------------------
+	|--------------------------------------------------------------------------
 	| Plugins & Themes
-	|--------------------------------------------------------------------
+	|--------------------------------------------------------------------------
 	*/
 
 	/**
-	 * Handle the on activated plugin event.
+	 * Handle the activated plugin event.
 	 *
 	 * @param string $plugin Plugin basename.
+	 * @return void
 	 */
 	public function on_activated_plugin( $plugin ): void {
 
@@ -461,9 +477,10 @@ final class Logger {
 	}
 
 	/**
-	 * Handle the on deactivated plugin event.
+	 * Handle the deactivated plugin event.
 	 *
 	 * @param string $plugin Plugin basename.
+	 * @return void
 	 */
 	public function on_deactivated_plugin( $plugin ): void {
 
@@ -481,10 +498,11 @@ final class Logger {
 	}
 
 	/**
-	 * Handle the on deleted plugin event.
+	 * Handle the deleted plugin event.
 	 *
 	 * @param string $plugin_file Plugin basename.
 	 * @param bool   $deleted     Whether deletion succeeded.
+	 * @return void
 	 */
 	public function on_deleted_plugin( $plugin_file, $deleted ): void {
 
@@ -503,10 +521,11 @@ final class Logger {
 	}
 
 	/**
-	 * Handle the on switch theme event.
+	 * Handle the switch theme event.
 	 *
 	 * @param string    $new_name  New theme name.
 	 * @param \WP_Theme $new_theme New theme object.
+	 * @return void
 	 */
 	public function on_switch_theme( $new_name, $new_theme = null ): void {
 
@@ -524,28 +543,41 @@ final class Logger {
 	}
 
 	/**
-	 * Fires after plugin/theme/core updates via the WP Upgrader.
+	 * Fires after plugin, theme, or core updates via the WP Upgrader.
 	 *
 	 * @param \WP_Upgrader $upgrader   Upgrader instance.
 	 * @param array        $hook_extra Extra info about what was upgraded.
+	 * @return void
 	 */
 	public function on_upgrader_process_complete( $upgrader, $hook_extra ): void {
 
-		if ( empty( $hook_extra['type'] ) || ! in_array( $hook_extra['action'] ?? '', array( 'install', 'update' ), true ) ) {
+		if (
+			empty( $hook_extra['type'] )
+			|| ! in_array(
+				$hook_extra['action'] ?? '',
+				array( 'install', 'update' ),
+				true
+			)
+		) {
 			return;
 		}
 
 		if ( 'plugin' === $hook_extra['type'] && $this->tracking_enabled( 'track_plugins' ) ) {
+
 			if ( 'install' === $hook_extra['action'] ) {
-				// WordPress does not include the plugin basename in the install hook_extra.
+
+				// WordPress does not include the plugin basename in the
+				// install hook_extra.
 				$this->log(
 					array(
 						'event_type'  => 'plugin_installed',
 						'object_type' => 'plugin',
-						'object_name' => __( 'Plugin package installed', 'wp-vaanilog' ),
+						'object_name' => __( 'Plugin package installed', 'vaanilog' ),
 					)
 				);
+
 			} else {
+
 				foreach ( (array) ( $hook_extra['plugins'] ?? array() ) as $plugin_file ) {
 					$this->log(
 						array(
@@ -557,15 +589,19 @@ final class Logger {
 				}
 			}
 		} elseif ( 'theme' === $hook_extra['type'] && $this->tracking_enabled( 'track_themes' ) ) {
+
 			if ( 'install' === $hook_extra['action'] ) {
+
 				$this->log(
 					array(
 						'event_type'  => 'theme_installed',
 						'object_type' => 'theme',
-						'object_name' => __( 'Theme package installed', 'wp-vaanilog' ),
+						'object_name' => __( 'Theme package installed', 'vaanilog' ),
 					)
 				);
+
 			} else {
+
 				foreach ( (array) ( $hook_extra['themes'] ?? array() ) as $theme_slug ) {
 					$this->log(
 						array(
@@ -577,6 +613,7 @@ final class Logger {
 				}
 			}
 		} elseif ( 'core' === $hook_extra['type'] ) {
+
 			$this->log(
 				array(
 					'event_type'  => 'core_updated',
@@ -590,17 +627,18 @@ final class Logger {
 	}
 
 	/*
-	|--------------------------------------------------------------------
+	|--------------------------------------------------------------------------
 	| Settings / Options
-	|--------------------------------------------------------------------
+	|--------------------------------------------------------------------------
 	*/
 
 	/**
-	 * Handle the on updated option event.
+	 * Handle the updated option event.
 	 *
 	 * @param string $option    Option name.
 	 * @param mixed  $old_value Previous value.
 	 * @param mixed  $new_value New value.
+	 * @return void
 	 */
 	public function on_updated_option( $option, $old_value, $new_value ): void {
 
@@ -629,9 +667,11 @@ final class Logger {
 		$safe_old = vaanilog_redact_sensitive_value( $old_value );
 		$safe_new = vaanilog_redact_sensitive_value( $new_value );
 
-		// If the option name itself looks credential-related, do not reveal its
-		// name/value details in the audit trail.
-		$display_name = vaanilog_is_sensitive_key( $option ) ? '[REDACTED OPTION]' : sanitize_text_field( $option );
+		// If the option name itself looks credential-related, do not reveal
+		// its name/value details in the audit trail.
+		$display_name = vaanilog_is_sensitive_key( $option )
+			? '[REDACTED OPTION]'
+			: sanitize_text_field( $option );
 
 		$this->log(
 			array(

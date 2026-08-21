@@ -2,14 +2,14 @@
 /**
  * Dashboard screen with summary cards.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Dashboard;
+namespace Vaanilog\Dashboard;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPVaaniLog\Database\Database;
+use Vaanilog\Database\Database;
 
 /**
  * Dashboard screen handler.
@@ -42,7 +42,8 @@ class Dashboard {
 
 		$chart = $this->get_last_seven_days();
 
-		require VAANILOG_PLUGIN_DIR . 'includes/views/dashboard.php';
+		$plugin_dir = defined( 'VAANILOG_PLUGIN_DIR' ) ? VAANILOG_PLUGIN_DIR : plugin_dir_path( dirname( dirname( __DIR__ ) ) );
+		require $plugin_dir . 'includes/views/dashboard.php';
 	}
 
 	/**

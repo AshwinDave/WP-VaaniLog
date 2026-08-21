@@ -2,10 +2,10 @@
 /**
  * Provides database persistence and query helpers for VaaniLog.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Database;
+namespace Vaanilog\Database;
 
 defined( 'ABSPATH' ) || exit;
 

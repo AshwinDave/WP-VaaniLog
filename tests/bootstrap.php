@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPUnit bootstrap for WP VaaniLog unit tests.
+ * PHPUnit bootstrap for Vaanilog unit tests.
  *
  * These are *unit* tests for pure-logic helpers (redaction, formatting,
  * label lookups) - they stub the handful of WordPress functions those

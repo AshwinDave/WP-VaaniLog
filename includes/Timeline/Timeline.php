@@ -2,13 +2,13 @@
 /**
  * Timeline screen with search and filters.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Timeline;
+namespace Vaanilog\Timeline;
 
-use WPVaaniLog\Database\Database;
-use WPVaaniLog\Database\Search;
+use Vaanilog\Database\Database;
+use Vaanilog\Database\Search;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -64,9 +64,9 @@ class Timeline {
 		$events       = $results['events'];
 		$total_events = $results['total'];
 		$total_pages  = (int) ceil( $total_events / $this->per_page );
-		$page_title   = $critical_only ? __( 'Critical Changes', 'wp-vaanilog' ) : __( 'Timeline', 'wp-vaanilog' );
+		$page_title   = $critical_only ? __( 'Critical Changes', 'vaanilog' ) : __( 'Timeline', 'vaanilog' );
 
-		include VAANILOG_PLUGIN_DIR . 'includes/views/timeline.php';
+		include __DIR__ . '/../views/timeline.php';
 	}
 
 	/**
@@ -93,6 +93,6 @@ class Timeline {
 			$event = Database::decorate_event( $event );
 		}
 
-		include VAANILOG_PLUGIN_DIR . 'includes/views/event-details.php';
+		include __DIR__ . '/../views/event-details.php';
 	}
 }
