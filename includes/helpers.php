@@ -1,8 +1,8 @@
 <?php
 /**
- * Helper functions for WP VaaniLog.
+ * Helper functions for Vaanilog.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,7 +29,6 @@ function vaanilog_default_settings(): array {
 		'log_retention_days' => 90,
 	);
 }
-
 /**
  * Resolve a user_id (as stored on a log row) to a human-readable name.
  * Cached per-request since the same user shows up on many rows.
@@ -44,7 +43,7 @@ function vaanilog_get_username( $user_id ): string {
 	$user_id = (int) $user_id;
 
 	if ( $user_id <= 0 ) {
-		return __( 'System', 'wp-vaanilog' );
+		return __( 'System', 'vaanilog' );
 	}
 
 	if ( isset( $cache[ $user_id ] ) ) {
@@ -53,7 +52,7 @@ function vaanilog_get_username( $user_id ): string {
 
 	$user = get_userdata( $user_id );
 
-	$cache[ $user_id ] = $user ? $user->display_name : __( 'Deleted user', 'wp-vaanilog' );
+	$cache[ $user_id ] = $user ? $user->display_name : __( 'Deleted user', 'vaanilog' );
 
 	return $cache[ $user_id ];
 }
@@ -86,32 +85,32 @@ function vaanilog_get_plugin_name( $plugin_file ): string {
  */
 function vaanilog_event_label( $event_type ): string {
 	$labels = array(
-		'post_created'               => __( 'Post Created', 'wp-vaanilog' ),
-		'post_updated'                => __( 'Post Updated', 'wp-vaanilog' ),
-		'post_deleted'                => __( 'Post Deleted', 'wp-vaanilog' ),
-		'post_restored'               => __( 'Post Restored', 'wp-vaanilog' ),
-		'page_created'                => __( 'Page Created', 'wp-vaanilog' ),
-		'page_updated'                => __( 'Page Updated', 'wp-vaanilog' ),
-		'page_deleted'                => __( 'Page Deleted', 'wp-vaanilog' ),
-		'page_restored'               => __( 'Page Restored', 'wp-vaanilog' ),
-		'user_created'                => __( 'User Created', 'wp-vaanilog' ),
-		'user_created_admin'          => __( 'Administrator Created', 'wp-vaanilog' ),
-		'user_deleted'                => __( 'User Deleted', 'wp-vaanilog' ),
-		'user_role_changed'           => __( 'User Role Changed', 'wp-vaanilog' ),
-		'user_role_changed_to_admin'  => __( 'User Promoted to Administrator', 'wp-vaanilog' ),
-		'user_login'                  => __( 'User Logged In', 'wp-vaanilog' ),
-		'user_logout'                 => __( 'User Logged Out', 'wp-vaanilog' ),
-		'password_changed'            => __( 'Password Changed', 'wp-vaanilog' ),
-		'plugin_activated'            => __( 'Plugin Activated', 'wp-vaanilog' ),
-		'plugin_deactivated'          => __( 'Plugin Deactivated', 'wp-vaanilog' ),
-		'plugin_updated'              => __( 'Plugin Updated', 'wp-vaanilog' ),
-		'plugin_installed'            => __( 'Plugin Installed', 'wp-vaanilog' ),
-		'plugin_deleted'              => __( 'Plugin Deleted', 'wp-vaanilog' ),
-		'theme_switched'              => __( 'Theme Changed', 'wp-vaanilog' ),
-		'theme_updated'               => __( 'Theme Updated', 'wp-vaanilog' ),
-		'theme_installed'             => __( 'Theme Installed', 'wp-vaanilog' ),
-		'theme_deleted'               => __( 'Theme Deleted', 'wp-vaanilog' ),
-		'core_updated'                => __( 'WordPress Updated', 'wp-vaanilog' ),
+		'post_created'               => __( 'Post Created', 'vaanilog' ),
+		'post_updated'                => __( 'Post Updated', 'vaanilog' ),
+		'post_deleted'                => __( 'Post Deleted', 'vaanilog' ),
+		'post_restored'               => __( 'Post Restored', 'vaanilog' ),
+		'page_created'                => __( 'Page Created', 'vaanilog' ),
+		'page_updated'                => __( 'Page Updated', 'vaanilog' ),
+		'page_deleted'                => __( 'Page Deleted', 'vaanilog' ),
+		'page_restored'               => __( 'Page Restored', 'vaanilog' ),
+		'user_created'                => __( 'User Created', 'vaanilog' ),
+		'user_created_admin'          => __( 'Administrator Created', 'vaanilog' ),
+		'user_deleted'                => __( 'User Deleted', 'vaanilog' ),
+		'user_role_changed'           => __( 'User Role Changed', 'vaanilog' ),
+		'user_role_changed_to_admin'  => __( 'User Promoted to Administrator', 'vaanilog' ),
+		'user_login'                  => __( 'User Logged In', 'vaanilog' ),
+		'user_logout'                 => __( 'User Logged Out', 'vaanilog' ),
+		'password_changed'            => __( 'Password Changed', 'vaanilog' ),
+		'plugin_activated'            => __( 'Plugin Activated', 'vaanilog' ),
+		'plugin_deactivated'          => __( 'Plugin Deactivated', 'vaanilog' ),
+		'plugin_updated'              => __( 'Plugin Updated', 'vaanilog' ),
+		'plugin_installed'            => __( 'Plugin Installed', 'vaanilog' ),
+		'plugin_deleted'              => __( 'Plugin Deleted', 'vaanilog' ),
+		'theme_switched'              => __( 'Theme Changed', 'vaanilog' ),
+		'theme_updated'               => __( 'Theme Updated', 'vaanilog' ),
+		'theme_installed'             => __( 'Theme Installed', 'vaanilog' ),
+		'theme_deleted'               => __( 'Theme Deleted', 'vaanilog' ),
+		'core_updated'                => __( 'WordPress Updated', 'vaanilog' ),
 	);
 
 	if ( isset( $labels[ $event_type ] ) ) {
@@ -119,7 +118,7 @@ function vaanilog_event_label( $event_type ): string {
 	}
 
 	if ( 0 === strpos( $event_type, 'option_' ) ) {
-		return __( 'Setting Changed', 'wp-vaanilog' );
+		return __( 'Setting Changed', 'vaanilog' );
 	}
 
 	return ucwords( str_replace( '_', ' ', $event_type ) );
@@ -208,16 +207,44 @@ function vaanilog_redact_sensitive_value( $value, int $depth = 0 ) {
 	}
 
 	if ( is_string( $value ) ) {
-		// Redact common secret/token assignments embedded in serialized/text values.
+		/*
+		* Redact HTTP Bearer credentials first.
+		* Keep the "Bearer" scheme visible for audit readability.
+		*/
 		$value = preg_replace(
-			'/((?:api[_\-.]?key|access[_\-.]?key|client[_\-.]?secret|password|passwd|secret|token|private[_\-.]?key|authorization)\s*[:=]\s*)(["\']?)[^"\'\s,;&]+/i',
+			'/(\bBearer\s+)[A-Za-z0-9._~+\/=-]+/i',
+			'$1[REDACTED]',
+			$value
+		);
+
+		/*
+		* Redact common secret/token assignments embedded in text.
+		* Authorization is handled separately below so that
+		* "Authorization: Bearer [REDACTED]" remains readable.
+		*/
+		$value = preg_replace(
+			'/((?:api[_\-.]?key|access[_\-.]?key|client[_\-.]?secret|password|passwd|secret|token|private[_\-.]?key)\s*[:=]\s*)(["\']?)[^"\'\s,;&]+/i',
 			'$1$2[REDACTED]',
 			$value
 		);
 
-		// Redact common bearer tokens and long JWT-like strings.
-		$value = preg_replace( '/\bBearer\s+[A-Za-z0-9._~+\/=-]+/i', 'Bearer [REDACTED]', $value );
-		$value = preg_replace( '/\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/', '[REDACTED TOKEN]', $value );
+		/*
+		* Redact authorization values that are not Bearer credentials.
+		*/
+		$value = preg_replace(
+			'/(authorization\s*[:=]\s*)(?!Bearer\b)(["\']?)[^"\'\s,;&]+/i',
+			'$1$2[REDACTED]',
+			$value
+		);
+
+		/*
+		* Redact common JWT-like tokens.
+		*/
+		$value = preg_replace(
+			'/\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/',
+			'[REDACTED TOKEN]',
+			$value
+		);
 
 		return $value;
 	}

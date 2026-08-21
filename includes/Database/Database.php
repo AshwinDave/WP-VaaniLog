@@ -1,13 +1,18 @@
 <?php
+/**
+ * Provides database persistence and query helpers for VaaniLog.
+ *
+ * @package Vaanilog
+ */
 
-namespace WPVaaniLog\Database;
+namespace Vaanilog\Database;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * $wpdb-backed implementation of LoggerRepositoryInterface.
  *
- * insert_event() is an instance method (not static) specifically so
+ * There the insert_event() is an instance method (not static) specifically so
  * Logger can depend on the LoggerRepositoryInterface contract instead
  * of this concrete class - see Logger::__construct(). Every other
  * method here is a read/utility helper called from several unrelated
@@ -23,16 +28,8 @@ final class Database implements LoggerRepositoryInterface {
 	 * This is the single write-path used by the Logger. Any hook that wants
 	 * to record a change must go through this method.
 	 *
-	 * @param array $data {
-	 *     @type string $event_type  Required. e.g. 'post_updated'.
-	 *     @type string $object_type Required. e.g. 'post', 'user', 'plugin'.
-	 *     @type int    $object_id   Optional. ID of the affected object.
-	 *     @type string $object_name Optional. Human-readable name (title, login, etc).
-	 *     @type int    $user_id     Optional. Acting user. Defaults to current user.
-	 *     @type mixed  $old_value   Optional. Previous value.
-	 *     @type mixed  $new_value   Optional. New value.
-	 *     @type string $severity    Optional. 'normal' or 'critical'. Default 'normal'.
-	 * }
+	 * @param array $data Event data to persist.
+
 	 * @return int|false Insert ID on success, false on failure.
 	 */
 	public function insert_event( array $data ) {
@@ -91,7 +88,7 @@ final class Database implements LoggerRepositoryInterface {
 
 	/**
 	 * Attach computed ->username and ->critical properties to a raw log
-	 * row, since the table itself only stores user_id and severity.
+	 * Row, since the table itself only stores user_id and severity.
 	 * The views (dashboard.php, timeline.php, event-details.php) read
 	 * ->username / ->critical, so every read-path must call this.
 	 *
@@ -141,14 +138,19 @@ final class Database implements LoggerRepositoryInterface {
 		$table  = self::table();
 		$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s", $cutoff ) );
+		$deleted = $wpdb->query(
+			$wpdb->prepare(
+				'DELETE FROM %i WHERE created_at < %s',
+				$table,
+				$cutoff
+			)
+		);
 
 		return false === $deleted ? 0 : (int) $deleted;
 	}
 
 	/**
-	 * Install database.
+	 * Install the database schema.
 	 */
 	public static function install(): void {
 
@@ -181,7 +183,6 @@ final class Database implements LoggerRepositoryInterface {
 		) {$charset_collate};";
 
 		dbDelta( $sql );
-
 	}
 
 	/**
@@ -212,9 +213,8 @@ final class Database implements LoggerRepositoryInterface {
 	 */
 	public static function table(): string {
 
-	global $wpdb;
+		global $wpdb;
 
-	return $wpdb->prefix . 'vaanilog_logs';
-}
-
+		return $wpdb->prefix . 'vaanilog_logs';
+	}
 }

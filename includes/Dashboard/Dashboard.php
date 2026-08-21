@@ -2,19 +2,24 @@
 /**
  * Dashboard screen with summary cards.
  *
- * @package WPVaaniLog
+ * @package Vaanilog
  */
 
-namespace WPVaaniLog\Dashboard;
+namespace Vaanilog\Dashboard;
 
 defined( 'ABSPATH' ) || exit;
 
-use WPVaaniLog\Database\Database;
+use Vaanilog\Database\Database;
 
+/**
+ * Dashboard screen handler.
+ */
 class Dashboard {
 
 	/**
 	 * Render the dashboard page.
+	 *
+	 * @return void
 	 */
 	public function render(): void {
 
@@ -37,7 +42,8 @@ class Dashboard {
 
 		$chart = $this->get_last_seven_days();
 
-		require VAANILOG_PLUGIN_DIR . 'includes/views/dashboard.php';
+		$plugin_dir = defined( 'VAANILOG_PLUGIN_DIR' ) ? VAANILOG_PLUGIN_DIR : plugin_dir_path( dirname( dirname( __DIR__ ) ) );
+		require $plugin_dir . 'includes/views/dashboard.php';
 	}
 
 	/**
@@ -46,32 +52,51 @@ class Dashboard {
 	 * @return array
 	 */
 	private function get_stats(): array {
-		global $wpdb;
-		$table = Database::table();
 
+		global $wpdb;
+
+		$table       = Database::table();
 		$today_start = current_time( 'Y-m-d' ) . ' 00:00:00';
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
 		$total_today = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s", $today_start )
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM %i WHERE created_at >= %s',
+				$table,
+				$today_start
+			)
 		);
 
 		$critical_today = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s AND severity = 'critical'", $today_start )
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM %i WHERE created_at >= %s AND severity = 'critical'",
+				$table,
+				$today_start
+			)
 		);
 
 		$plugin_updates_today = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s AND object_type = 'plugin' AND event_type = 'plugin_updated'", $today_start )
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM %i WHERE created_at >= %s AND object_type = 'plugin' AND event_type = 'plugin_updated'",
+				$table,
+				$today_start
+			)
 		);
 
 		$theme_updates_today = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s AND object_type = 'theme' AND event_type = 'theme_updated'", $today_start )
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM %i WHERE created_at >= %s AND object_type = 'theme' AND event_type = 'theme_updated'",
+				$table,
+				$today_start
+			)
 		);
 
 		$content_changes_today = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s AND object_type IN ('post','page')", $today_start )
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM %i WHERE created_at >= %s AND object_type IN ('post', 'page')",
+				$table,
+				$today_start
+			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		return array(
 			'total_today'           => $total_today,
@@ -89,14 +114,24 @@ class Dashboard {
 	 * @return array
 	 */
 	private function get_recent_events( int $limit = 8 ): array {
+
 		global $wpdb;
+
 		$table = Database::table();
+		$limit = max( 1, min( 100, absint( $limit ) ) );
 
 		$events = $wpdb->get_results(
-			$wpdb->prepare( "SELECT id, event_type, object_type, object_name, user_id, severity, created_at FROM {$table} ORDER BY created_at DESC LIMIT %d", $limit )
-		) ?: [];
+			$wpdb->prepare(
+				'SELECT id, event_type, object_type, object_name, user_id, severity, created_at
+				FROM %i
+				ORDER BY created_at DESC
+				LIMIT %d',
+				$table,
+				$limit
+			)
+		);
 
-		return Database::decorate_events( $events );
+		return Database::decorate_events( $events ? $events : array() );
 	}
 
 	/**
@@ -110,24 +145,23 @@ class Dashboard {
 
 		$table = Database::table();
 
-		$sql = "
-			SELECT
-				DATE(created_at) as event_date,
-				COUNT(*) as total
-			FROM {$table}
-			WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 DAY)
-			GROUP BY DATE(created_at)
-			ORDER BY event_date ASC
-		";
-
-		$rows = $wpdb->get_results( $sql );
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT
+					DATE(created_at) AS event_date,
+					COUNT(*) AS total
+				FROM %i
+				WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 DAY)
+				GROUP BY DATE(created_at)
+				ORDER BY event_date ASC',
+				$table
+			)
+		);
 
 		$data = array();
 
 		for ( $i = 6; $i >= 0; $i-- ) {
-
-			$date = gmdate( 'Y-m-d', strtotime( "-{$i} days" ) );
-
+			$date         = gmdate( 'Y-m-d', strtotime( "-{$i} days" ) );
 			$data[ $date ] = 0;
 		}
 
@@ -138,5 +172,3 @@ class Dashboard {
 		return $data;
 	}
 }
-
-

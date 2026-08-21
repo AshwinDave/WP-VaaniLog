@@ -21,6 +21,6 @@ jobs:
       - name: Run WordPress Plugin Check
         uses: WordPress/plugin-check-action@v1
         with:
-          # This repo IS the plugin root (wp-vaanilog.php lives at the
+          # This repo IS the plugin root (vaanilog.php lives at the
           # top level) - point Plugin Check there directly.
           build-dir: '.'
